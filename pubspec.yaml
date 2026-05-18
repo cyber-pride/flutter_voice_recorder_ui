@@ -1,0 +1,30 @@
+name: flutter_voice_recorder_ui
+description: A WhatsApp-style hold-to-record voice button with live waveform animation. Outputs raw PCM bytes for streaming to voice-AI APIs (OpenAI, Gemini, Whisper).
+version: 0.2.0
+homepage: https://github.com/amirhameed/flutter_voice_recorder_ui
+repository: https://github.com/amirhameed/flutter_voice_recorder_ui
+issue_tracker: https://github.com/amirhameed/flutter_voice_recorder_ui/issues
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+  flutter: ">=3.24.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  record: ^6.1.2
+  permission_handler: ^11.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+
+topics:
+  - voice
+  - audio
+  - recorder
+  - waveform
+  - ai

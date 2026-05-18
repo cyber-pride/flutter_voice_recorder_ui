@@ -1,0 +1,16 @@
+.dart_tool/
+.packages
+build/
+pubspec.lock
+.flutter-plugins
+.flutter-plugins-dependencies
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Marketing assets (kept locally only; regenerated from /tmp scripts)
+linkedin-hero.png
+linkedin-square.png
+
+.claude/
