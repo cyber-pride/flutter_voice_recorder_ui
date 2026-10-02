@@ -492,7 +492,7 @@ class _VoiceRecorderButtonState extends State<VoiceRecorderButton>
                         isRecording: _isRecording,
                         willCancel: _willCancel,
                         micColor: mic,
-                        idleMicBackgroundColor: widget.idleMicBackgroundColor,
+                        micBackgroundColor: widget.idleMicBackgroundColor,
                         enableBoxShadow: widget.enableBoxShadow,
                         micIcon: widget.micIcon,
                         idleMicIcon: widget.idleMicIcon,
@@ -641,7 +641,7 @@ class _MicButton extends StatefulWidget {
     required this.isRecording,
     required this.willCancel,
     required this.micColor,
-    required this.idleMicBackgroundColor,
+    required this.micBackgroundColor,
     required this.enableBoxShadow,
     required this.micIcon,
     required this.idleMicIcon,
@@ -654,7 +654,7 @@ class _MicButton extends StatefulWidget {
   final bool isRecording;
   final bool willCancel;
   final Color micColor;
-  final Color idleMicBackgroundColor;
+  final Color micBackgroundColor;
   final bool enableBoxShadow;
   final IconData micIcon;
   final IconData idleMicIcon;
@@ -718,7 +718,7 @@ class _MicButtonState extends State<_MicButton> {
     final isRec = widget.isRecording;
     final bg = isRec
         ? (widget.willCancel ? const Color(0xFFE53935) : widget.micColor)
-        : widget.idleMicBackgroundColor;
+        : widget.micBackgroundColor;
     // Three scale states: idle (small), pressed-but-not-yet-recording
     // (slightly larger so the press feels acknowledged), recording (full).
     final targetScale = isRec ? 1.0 : (_isPressed ? 0.85 : 0.72);
@@ -746,7 +746,7 @@ class _MicButtonState extends State<_MicButton> {
                   boxShadow: widget.enableBoxShadow && isRec && !widget.willCancel
                       ? [
                           BoxShadow(
-                            color: widget.micColor.withValues(alpha: 0.45),
+                            color: widget.micBackgroundColor.withValues(alpha: 0.45),
                             blurRadius: 18,
                             spreadRadius: 2,
                           ),
