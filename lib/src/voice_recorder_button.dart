@@ -35,6 +35,7 @@ class VoiceRecorderButton extends StatefulWidget {
     this.waveformColor,
     this.timerColor,
     this.recordingIndicatorColor,
+    this.idleMicBackgroundColor = Colors.transparent,
     this.micIcon = Icons.mic,
     this.idleMicIcon = Icons.mic_none,
     this.pulsingMicIcon = Icons.mic,
@@ -51,6 +52,7 @@ class VoiceRecorderButton extends StatefulWidget {
     this.cancelSlideThreshold = 96,
     this.lockSlideThreshold = 48,
     this.enableLock = true,
+    this.enableBoxShadow = true,
     this.hapticFeedback = true,
   });
 
@@ -70,6 +72,10 @@ class VoiceRecorderButton extends StatefulWidget {
   /// (the "you're recording" indicator). Defaults to a universal red.
   final Color? recordingIndicatorColor;
 
+  /// Background color of the mic button when idle (not recording).
+  /// Defaults to [Colors.transparent].
+  final Color idleMicBackgroundColor;
+
   final IconData micIcon;
   final IconData idleMicIcon;
   final IconData pulsingMicIcon;
@@ -87,6 +93,11 @@ class VoiceRecorderButton extends StatefulWidget {
   final double cancelSlideThreshold;
   final double lockSlideThreshold;
   final bool enableLock;
+
+  /// Whether to show a glow/shadow behind the mic button while recording.
+  /// Defaults to [true].
+  final bool enableBoxShadow;
+
   final bool hapticFeedback;
 
   @override
@@ -481,6 +492,8 @@ class _VoiceRecorderButtonState extends State<VoiceRecorderButton>
                         isRecording: _isRecording,
                         willCancel: _willCancel,
                         micColor: mic,
+                        idleMicBackgroundColor: widget.idleMicBackgroundColor,
+                        enableBoxShadow: widget.enableBoxShadow,
                         micIcon: widget.micIcon,
                         idleMicIcon: widget.idleMicIcon,
                         onHoldStart: _startRecording,
@@ -628,6 +641,8 @@ class _MicButton extends StatefulWidget {
     required this.isRecording,
     required this.willCancel,
     required this.micColor,
+    required this.idleMicBackgroundColor,
+    required this.enableBoxShadow,
     required this.micIcon,
     required this.idleMicIcon,
     required this.onHoldStart,
@@ -639,6 +654,8 @@ class _MicButton extends StatefulWidget {
   final bool isRecording;
   final bool willCancel;
   final Color micColor;
+  final Color idleMicBackgroundColor;
+  final bool enableBoxShadow;
   final IconData micIcon;
   final IconData idleMicIcon;
   final Future<void> Function() onHoldStart;
@@ -695,13 +712,13 @@ class _MicButtonState extends State<_MicButton> {
       widget.onHoldEnd();
     }
   }
-
+  
   @override
   Widget build(BuildContext context) {
     final isRec = widget.isRecording;
     final bg = isRec
         ? (widget.willCancel ? const Color(0xFFE53935) : widget.micColor)
-        : Colors.transparent;
+        : widget.idleMicBackgroundColor;
     // Three scale states: idle (small), pressed-but-not-yet-recording
     // (slightly larger so the press feels acknowledged), recording (full).
     final targetScale = isRec ? 1.0 : (_isPressed ? 0.85 : 0.72);
@@ -726,7 +743,7 @@ class _MicButtonState extends State<_MicButton> {
                 decoration: BoxDecoration(
                   color: bg,
                   shape: BoxShape.circle,
-                  boxShadow: isRec && !widget.willCancel
+                  boxShadow: widget.enableBoxShadow && isRec && !widget.willCancel
                       ? [
                           BoxShadow(
                             color: widget.micColor.withValues(alpha: 0.45),

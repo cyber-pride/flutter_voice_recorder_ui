@@ -30,6 +30,27 @@ void main() {
       expect(find.byIcon(Icons.mic_none), findsNothing);
     });
 
+    testWidgets('respects custom idleMicBackgroundColor', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: VoiceRecorderButton(
+              onRecordingComplete: (_) {},
+              idleMicBackgroundColor: Colors.blue,
+            ),
+          ),
+        ),
+      );
+      final container = tester.widget<Container>(
+        find.ancestor(
+          of: find.byIcon(Icons.mic_none),
+          matching: find.byType(Container),
+        ),
+      );
+      final decoration = container.decoration as BoxDecoration;
+      expect(decoration.color, Colors.blue);
+    });
+
     testWidgets('respects custom size', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
