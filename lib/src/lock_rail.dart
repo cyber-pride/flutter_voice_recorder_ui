@@ -12,6 +12,9 @@ class LockRail extends StatefulWidget {
     required this.progress,
     this.extension = 0,
     this.locked = false,
+    this.lockIcon = Icons.lock,
+    this.lockOpenIcon = Icons.lock_open_outlined,
+    this.lockArrowIcon = Icons.keyboard_arrow_up_rounded,
   });
 
   /// 0.0 – 1.0 while sliding up toward lock. Used to fade the chevron
@@ -23,6 +26,9 @@ class LockRail extends StatefulWidget {
   final double extension;
 
   final bool locked;
+  final IconData lockIcon;
+  final IconData lockOpenIcon;
+  final IconData lockArrowIcon;
 
   @override
   State<LockRail> createState() => _LockRailState();
@@ -80,7 +86,7 @@ class _LockRailState extends State<LockRail>
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 220),
             child: Icon(
-              widget.locked ? Icons.lock : Icons.lock_open_outlined,
+              widget.locked ? widget.lockIcon : widget.lockOpenIcon,
               key: ValueKey(widget.locked),
               size: 22,
               color: widget.locked ? _green : _gray,
@@ -95,8 +101,8 @@ class _LockRailState extends State<LockRail>
                 final bounce = -3.0 * _hintCtrl.value;
                 return Transform.translate(
                   offset: Offset(0, bounce),
-                  child: const Icon(
-                    Icons.keyboard_arrow_up_rounded,
+                  child: Icon(
+                    widget.lockArrowIcon,
                     size: 22,
                     color: _gray,
                   ),

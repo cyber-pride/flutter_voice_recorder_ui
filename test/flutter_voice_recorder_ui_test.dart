@@ -15,6 +15,21 @@ void main() {
       expect(find.byIcon(Icons.mic_none), findsOneWidget);
     });
 
+    testWidgets('renders custom idle mic icon', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: VoiceRecorderButton(
+              onRecordingComplete: (_) {},
+              idleMicIcon: Icons.mic_external_on,
+            ),
+          ),
+        ),
+      );
+      expect(find.byIcon(Icons.mic_external_on), findsOneWidget);
+      expect(find.byIcon(Icons.mic_none), findsNothing);
+    });
+
     testWidgets('respects custom size', (tester) async {
       await tester.pumpWidget(
         MaterialApp(

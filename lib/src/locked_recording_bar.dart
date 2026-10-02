@@ -16,6 +16,10 @@ class LockedRecordingBar extends StatelessWidget {
     this.timerColor = const Color(0xFF111B21),
     this.waveformColor = const Color(0xFF8696A0),
     this.sendButtonColor = const Color(0xFF25D366),
+    this.deleteIcon = Icons.delete_outline,
+    this.pauseIcon = Icons.pause_rounded,
+    this.playIcon = Icons.play_arrow_rounded,
+    this.sendIcon = Icons.send_rounded,
   });
 
   final Duration elapsed;
@@ -27,6 +31,10 @@ class LockedRecordingBar extends StatelessWidget {
   final Color timerColor;
   final Color waveformColor;
   final Color sendButtonColor;
+  final IconData deleteIcon;
+  final IconData pauseIcon;
+  final IconData playIcon;
+  final IconData sendIcon;
 
   static const _gray = Color(0xFF8696A0);
   static const _pauseRed = Color(0xFFEB4D5C);
@@ -68,8 +76,8 @@ class LockedRecordingBar extends StatelessWidget {
               _CircularTap(
                 onTap: onDelete,
                 size: 44,
-                child: const Icon(
-                  Icons.delete_outline,
+                child: Icon(
+                  deleteIcon,
                   color: _gray,
                   size: 26,
                 ),
@@ -82,9 +90,7 @@ class LockedRecordingBar extends StatelessWidget {
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 160),
                       child: Icon(
-                        isPaused
-                            ? Icons.play_arrow_rounded
-                            : Icons.pause_rounded,
+                        isPaused ? playIcon : pauseIcon,
                         key: ValueKey(isPaused),
                         color: _pauseRed,
                         size: 36,
@@ -111,8 +117,8 @@ class LockedRecordingBar extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: const Icon(
-                    Icons.send_rounded,
+                  child: Icon(
+                    sendIcon,
                     color: Colors.white,
                     size: 22,
                   ),

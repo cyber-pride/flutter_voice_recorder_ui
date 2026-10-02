@@ -9,11 +9,15 @@ class SlideToCancelHint extends StatefulWidget {
     required this.willCancel,
     this.color,
     this.fontSize = 13,
+    this.cancelChevronIcon = Icons.chevron_left,
+    this.deleteIcon = Icons.delete_outline,
   });
 
   final bool willCancel;
   final Color? color;
   final double fontSize;
+  final IconData cancelChevronIcon;
+  final IconData deleteIcon;
 
   @override
   State<SlideToCancelHint> createState() => _SlideToCancelHintState();
@@ -50,7 +54,7 @@ class _SlideToCancelHintState extends State<SlideToCancelHint>
             return Opacity(
               opacity: opacity.clamp(0.2, 1.0),
               child: Icon(
-                Icons.chevron_left,
+                widget.cancelChevronIcon,
                 size: 22,
                 color: color.withValues(alpha: opacity),
               ),
@@ -72,14 +76,14 @@ class _SlideToCancelHintState extends State<SlideToCancelHint>
         if (widget.willCancel) {
           if (!maxW.isFinite || maxW < 24) {
             return Icon(
-              Icons.delete_outline,
+              widget.deleteIcon,
               size: 20,
               color: Colors.red.shade600,
             );
           }
           if (maxW < 88) {
             return Icon(
-              Icons.delete_outline,
+              widget.deleteIcon,
               size: 20,
               color: Colors.red.shade600,
             );
@@ -89,7 +93,7 @@ class _SlideToCancelHintState extends State<SlideToCancelHint>
             child: Row(
               children: [
                 Icon(
-                  Icons.delete_outline,
+                  widget.deleteIcon,
                   size: 20,
                   color: Colors.red.shade600,
                 ),

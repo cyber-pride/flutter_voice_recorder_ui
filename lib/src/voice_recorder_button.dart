@@ -35,6 +35,17 @@ class VoiceRecorderButton extends StatefulWidget {
     this.waveformColor,
     this.timerColor,
     this.recordingIndicatorColor,
+    this.micIcon = Icons.mic,
+    this.idleMicIcon = Icons.mic_none,
+    this.pulsingMicIcon = Icons.mic,
+    this.lockIcon = Icons.lock,
+    this.lockOpenIcon = Icons.lock_open_outlined,
+    this.lockArrowIcon = Icons.keyboard_arrow_up_rounded,
+    this.deleteIcon = Icons.delete_outline,
+    this.pauseIcon = Icons.pause_rounded,
+    this.playIcon = Icons.play_arrow_rounded,
+    this.sendIcon = Icons.send_rounded,
+    this.cancelChevronIcon = Icons.chevron_left,
     this.size = 48,
     this.pillMicGap = 12,
     this.cancelSlideThreshold = 96,
@@ -58,6 +69,18 @@ class VoiceRecorderButton extends StatefulWidget {
   /// Color of the small pulsing mic icon shown inside the recording pill
   /// (the "you're recording" indicator). Defaults to a universal red.
   final Color? recordingIndicatorColor;
+
+  final IconData micIcon;
+  final IconData idleMicIcon;
+  final IconData pulsingMicIcon;
+  final IconData lockIcon;
+  final IconData lockOpenIcon;
+  final IconData lockArrowIcon;
+  final IconData deleteIcon;
+  final IconData pauseIcon;
+  final IconData playIcon;
+  final IconData sendIcon;
+  final IconData cancelChevronIcon;
 
   final double size;
   final double pillMicGap;
@@ -381,6 +404,10 @@ class _VoiceRecorderButtonState extends State<VoiceRecorderButton>
           timerColor: timerColor,
           waveformColor: wave,
           sendButtonColor: mic,
+          deleteIcon: widget.deleteIcon,
+          pauseIcon: widget.pauseIcon,
+          playIcon: widget.playIcon,
+          sendIcon: widget.sendIcon,
           onDelete: _cancelRecording,
           onPauseResume: _togglePause,
           onSend: _finishRecording,
@@ -419,6 +446,9 @@ class _VoiceRecorderButtonState extends State<VoiceRecorderButton>
                         progress: _lockProgress,
                         extension: _dragOffsetY,
                         locked: false,
+                        lockIcon: widget.lockIcon,
+                        lockOpenIcon: widget.lockOpenIcon,
+                        lockArrowIcon: widget.lockArrowIcon,
                       ),
                     ),
 
@@ -435,6 +465,9 @@ class _VoiceRecorderButtonState extends State<VoiceRecorderButton>
                         timerColor: timerColor,
                         indicatorColor: widget.recordingIndicatorColor ??
                             _recordingPink,
+                        pulsingMicIcon: widget.pulsingMicIcon,
+                        cancelChevronIcon: widget.cancelChevronIcon,
+                        deleteIcon: widget.deleteIcon,
                       ),
                     ),
 
@@ -448,6 +481,8 @@ class _VoiceRecorderButtonState extends State<VoiceRecorderButton>
                         isRecording: _isRecording,
                         willCancel: _willCancel,
                         micColor: mic,
+                        micIcon: widget.micIcon,
+                        idleMicIcon: widget.idleMicIcon,
                         onHoldStart: _startRecording,
                         onDrag: _onDragUpdate,
                         onHoldEnd: _onHoldEnd,
@@ -473,6 +508,9 @@ class _RecordingPill extends StatelessWidget {
     required this.elapsed,
     required this.timerColor,
     required this.indicatorColor,
+    required this.pulsingMicIcon,
+    required this.cancelChevronIcon,
+    required this.deleteIcon,
   });
 
   final double width;
@@ -482,6 +520,9 @@ class _RecordingPill extends StatelessWidget {
   final Duration elapsed;
   final Color timerColor;
   final Color indicatorColor;
+  final IconData pulsingMicIcon;
+  final IconData cancelChevronIcon;
+  final IconData deleteIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -508,6 +549,7 @@ class _RecordingPill extends StatelessWidget {
           children: [
             _PulsingMicIcon(
               color: willCancel ? Colors.red.shade400 : indicatorColor,
+              icon: pulsingMicIcon,
             ),
             const SizedBox(width: 10),
             RecordingTimer(
@@ -523,7 +565,11 @@ class _RecordingPill extends StatelessWidget {
             Expanded(
               child: Align(
                 alignment: Alignment.centerRight,
-                child: SlideToCancelHint(willCancel: willCancel),
+                child: SlideToCancelHint(
+                  willCancel: willCancel,
+                  cancelChevronIcon: cancelChevronIcon,
+                  deleteIcon: deleteIcon,
+                ),
               ),
             ),
           ],
@@ -534,9 +580,13 @@ class _RecordingPill extends StatelessWidget {
 }
 
 class _PulsingMicIcon extends StatefulWidget {
-  const _PulsingMicIcon({required this.color});
+  const _PulsingMicIcon({
+    required this.color,
+    required this.icon,
+  });
 
   final Color color;
+  final IconData icon;
 
   @override
   State<_PulsingMicIcon> createState() => _PulsingMicIconState();
@@ -567,7 +617,7 @@ class _PulsingMicIconState extends State<_PulsingMicIcon>
       opacity: Tween(begin: 0.55, end: 1.0).animate(
         CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
       ),
-      child: Icon(Icons.mic, size: 20, color: widget.color),
+      child: Icon(widget.icon, size: 20, color: widget.color),
     );
   }
 }
@@ -578,6 +628,8 @@ class _MicButton extends StatefulWidget {
     required this.isRecording,
     required this.willCancel,
     required this.micColor,
+    required this.micIcon,
+    required this.idleMicIcon,
     required this.onHoldStart,
     required this.onDrag,
     required this.onHoldEnd,
@@ -587,6 +639,8 @@ class _MicButton extends StatefulWidget {
   final bool isRecording;
   final bool willCancel;
   final Color micColor;
+  final IconData micIcon;
+  final IconData idleMicIcon;
   final Future<void> Function() onHoldStart;
   final void Function(double dx, double dy) onDrag;
   final VoidCallback onHoldEnd;
@@ -687,7 +741,7 @@ class _MicButtonState extends State<_MicButton> {
                   transitionBuilder: (child, anim) =>
                       ScaleTransition(scale: anim, child: child),
                   child: Icon(
-                    isRec ? Icons.mic : Icons.mic_none,
+                    isRec ? widget.micIcon : widget.idleMicIcon,
                     key: ValueKey(isRec),
                     color: isRec ? Colors.white : widget.micColor,
                     size: widget.size * (isRec ? 0.5 : 0.46),
