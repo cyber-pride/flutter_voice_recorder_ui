@@ -12,8 +12,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  record: ^6.1.2
-  permission_handler: ^11.3.1
+  record: ^7.1.1
+  permission_handler: ^13.0.2
 
 dev_dependencies:
   flutter_test:
