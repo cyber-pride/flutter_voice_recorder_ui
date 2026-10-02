@@ -1,8 +1,29 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:permission_handler/permission_handler.dart';
 import 'package:record/record.dart';
+
+/// Specifies the recording output destination mode.
+enum VoiceRecorderOutputMode {
+  /// Stream raw audio byte chunks in real-time.
+  stream,
+
+  /// Record audio into a local file.
+  file,
+}
+
+/// Result object returned by [VoiceRecorderController.stop].
+class VoiceRecorderStopResult {
+  const VoiceRecorderStopResult({
+    required this.durationMs,
+    this.path,
+  });
+
+  final int durationMs;
+  final String? path;
+}
 
 /// Configuration for the audio recording.
 ///
@@ -14,12 +35,16 @@ class VoiceRecorderConfig {
     this.numChannels = 1,
     this.bitRate = 128000,
     this.encoder = AudioEncoder.pcm16bits,
+    this.outputMode = VoiceRecorderOutputMode.stream,
+    this.filePath,
   });
 
   final int sampleRate;
   final int numChannels;
   final int bitRate;
   final AudioEncoder encoder;
+  final VoiceRecorderOutputMode outputMode;
+  final String? filePath;
 
   RecordConfig toRecordConfig() => RecordConfig(
         encoder: encoder,
@@ -29,19 +54,35 @@ class VoiceRecorderConfig {
       );
 }
 
+String _extensionForEncoder(AudioEncoder encoder) {
+  switch (encoder) {
+    case AudioEncoder.aacLc:
+    case AudioEncoder.aacEld:
+    case AudioEncoder.aacHe:
+      return 'm4a';
+    case AudioEncoder.opus:
+      return 'opus';
+    case AudioEncoder.flac:
+      return 'flac';
+    case AudioEncoder.wav:
+    case AudioEncoder.pcm16bits:
+      return 'wav';
+    default:
+      return 'm4a';
+  }
+}
+
+String _generateTempFilePath(AudioEncoder encoder) {
+  final ext = _extensionForEncoder(encoder);
+  final name = 'rec_${DateTime.now().millisecondsSinceEpoch}.$ext';
+  return '${Directory.systemTemp.path}/$name';
+}
+
 /// State of the recorder, exposed via [VoiceRecorderController.stateStream].
 enum VoiceRecorderState { idle, recording, error }
 
-/// Controls audio recording and exposes the raw PCM byte stream + amplitude
-/// stream for waveform rendering.
-///
-/// Typical usage:
-/// ```dart
-/// final controller = VoiceRecorderController();
-/// await controller.start();
-/// controller.bytesStream.listen((chunk) => sendToApi(chunk));
-/// await controller.stop();
-/// ```
+/// Controls audio recording and exposes either raw PCM byte stream or output file path
+/// along with amplitude stream for waveform rendering.
 class VoiceRecorderController {
   VoiceRecorderController({VoiceRecorderConfig? config})
       : _config = config ?? const VoiceRecorderConfig(),
@@ -56,12 +97,16 @@ class VoiceRecorderController {
   StreamSubscription<Uint8List>? _byteSub;
   StreamSubscription<Amplitude>? _ampSub;
   Stream<Uint8List>? _rawStream;
+  String? _recordedFilePath;
 
   VoiceRecorderState _state = VoiceRecorderState.idle;
   VoiceRecorderState get state => _state;
 
   bool _paused = false;
   bool get isPaused => _paused;
+
+  VoiceRecorderOutputMode get outputMode => _config.outputMode;
+  String? get recordedFilePath => _recordedFilePath;
 
   /// Emits recorder state transitions.
   Stream<VoiceRecorderState> get stateStream => _stateController.stream;
@@ -70,9 +115,13 @@ class VoiceRecorderController {
   /// your waveform widget off this.
   Stream<double> get amplitudeStream => _amplitudeController.stream;
 
-  /// Emits raw PCM byte chunks while recording. Pipe these straight to your
-  /// streaming voice API (e.g. OpenAI Realtime, Gemini Live).
+  /// Emits raw PCM byte chunks while recording in [VoiceRecorderOutputMode.stream].
   Stream<Uint8List> get bytesStream {
+    if (_config.outputMode == VoiceRecorderOutputMode.file) {
+      throw StateError(
+        "bytesStream is not available when outputMode is set to VoiceRecorderOutputMode.file.",
+      );
+    }
     if (_rawStream == null) {
       throw StateError(
         "bytesStream accessed before start(). Call start() first.",
@@ -93,7 +142,7 @@ class VoiceRecorderController {
   }
 
   /// Begins recording. Throws [StateError] if permission is denied.
-  Future<void> start() async {
+  Future<void> start({String? path}) async {
     if (_state == VoiceRecorderState.recording) return;
 
     final granted = await requestPermission();
@@ -103,8 +152,16 @@ class VoiceRecorderController {
     }
 
     try {
-      _rawStream = (await _recorder.startStream(_config.toRecordConfig()))
-          .asBroadcastStream();
+      if (_config.outputMode == VoiceRecorderOutputMode.file) {
+        final targetPath =
+            path ?? _config.filePath ?? _generateTempFilePath(_config.encoder);
+        _recordedFilePath = targetPath;
+        await _recorder.start(_config.toRecordConfig(), path: targetPath);
+      } else {
+        _recordedFilePath = null;
+        _rawStream = (await _recorder.startStream(_config.toRecordConfig()))
+            .asBroadcastStream();
+      }
 
       _ampSub = _recorder
           .onAmplitudeChanged(const Duration(milliseconds: 100))
@@ -124,18 +181,24 @@ class VoiceRecorderController {
     }
   }
 
-  /// Stops recording. Returns the total duration in milliseconds.
-  Future<int> stop() async {
-    if (_state != VoiceRecorderState.recording) return 0;
+  /// Stops recording. Returns [VoiceRecorderStopResult] containing duration in ms and file path.
+  Future<VoiceRecorderStopResult> stop() async {
+    if (_state != VoiceRecorderState.recording) {
+      return const VoiceRecorderStopResult(durationMs: 0, path: null);
+    }
     final start = DateTime.now();
-    await _recorder.stop();
+    final path = await _recorder.stop();
     await _ampSub?.cancel();
     await _byteSub?.cancel();
     _ampSub = null;
     _byteSub = null;
     _paused = false;
     _setState(VoiceRecorderState.idle);
-    return DateTime.now().difference(start).inMilliseconds;
+    final ms = DateTime.now().difference(start).inMilliseconds;
+    return VoiceRecorderStopResult(
+      durationMs: ms,
+      path: path ?? _recordedFilePath,
+    );
   }
 
   /// Pauses an active recording (locked / hands-free mode).
@@ -161,6 +224,7 @@ class VoiceRecorderController {
     _ampSub = null;
     _byteSub = null;
     _rawStream = null;
+    _recordedFilePath = null;
     _paused = false;
     _setState(VoiceRecorderState.idle);
   }

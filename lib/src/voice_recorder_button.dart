@@ -13,11 +13,13 @@ import 'voice_recorder_controller.dart';
 class VoiceRecorderResult {
   const VoiceRecorderResult({
     required this.durationMs,
-    required this.bytesStream,
+    this.bytesStream,
+    this.path,
   });
 
   final int durationMs;
-  final Stream<Uint8List> bytesStream;
+  final Stream<Uint8List>? bytesStream;
+  final String? path;
 }
 
 /// WhatsApp-style hold-to-record voice button with slide-to-cancel and slide-up-to-lock.
@@ -275,13 +277,12 @@ class _VoiceRecorderButtonState extends State<VoiceRecorderButton>
       HapticFeedback.lightImpact();
     }
 
-    // Snapshot what we need before resetting the UI. The bytesStream
-    // getter can throw if start() hasn't completed (permission still
-    // pending) — treat that as a cancel.
     final ready = _controller.state == VoiceRecorderState.recording;
+    final isStreamMode =
+        _controller.outputMode == VoiceRecorderOutputMode.stream;
     final shouldCancel = _willCancel || !ready;
     Stream<Uint8List>? capturedStream;
-    if (!shouldCancel) {
+    if (!shouldCancel && isStreamMode) {
       try {
         capturedStream = _controller.bytesStream;
       } catch (_) {
@@ -296,13 +297,17 @@ class _VoiceRecorderButtonState extends State<VoiceRecorderButton>
     // Drive the underlying recorder. If anything throws (slow Android,
     // race condition), swallow it — the UI is already clean.
     try {
-      if (shouldCancel || capturedStream == null) {
+      if (shouldCancel || (isStreamMode && capturedStream == null)) {
         await _controller.cancel();
         widget.onRecordingCancelled?.call();
       } else {
-        final ms = await _controller.stop();
+        final stopResult = await _controller.stop();
         widget.onRecordingComplete(
-          VoiceRecorderResult(durationMs: ms, bytesStream: capturedStream),
+          VoiceRecorderResult(
+            durationMs: stopResult.durationMs,
+            bytesStream: capturedStream,
+            path: stopResult.path,
+          ),
         );
       }
     } catch (_) {

@@ -48,27 +48,41 @@ class _ChatDemoPageState extends State<ChatDemoPage> {
   bool _isLocked = false;
 
   void _onComplete(VoiceRecorderResult result) {
-    result.bytesStream.listen(
-      (Uint8List chunk) {
-        if (!mounted) return;
-        setState(() => _totalBytes += chunk.length);
-      },
-      onDone: () {
-        if (!mounted) return;
-        setState(() {
-          _messages.add(
-            _ChatMessage(
-              text:
-                  'Voice note (${result.durationMs ~/ 1000}s) — $_totalBytes bytes PCM',
-              isMe: true,
-              time: _now(),
-            ),
-          );
-          _status = null;
-          _totalBytes = 0;
-        });
-      },
-    );
+    if (result.bytesStream != null) {
+      result.bytesStream!.listen(
+        (Uint8List chunk) {
+          if (!mounted) return;
+          setState(() => _totalBytes += chunk.length);
+        },
+        onDone: () {
+          if (!mounted) return;
+          setState(() {
+            _messages.add(
+              _ChatMessage(
+                text:
+                    'Voice note (${result.durationMs ~/ 1000}s) — $_totalBytes bytes PCM',
+                isMe: true,
+                time: _now(),
+              ),
+            );
+            _status = null;
+            _totalBytes = 0;
+          });
+        },
+      );
+    } else if (result.path != null) {
+      setState(() {
+        _messages.add(
+          _ChatMessage(
+            text:
+                'Voice note (${result.durationMs ~/ 1000}s) — file: ${result.path}',
+            isMe: true,
+            time: _now(),
+          ),
+        );
+        _status = null;
+      });
+    }
     setState(() => _status = 'Sending…');
   }
 
@@ -232,7 +246,8 @@ class _ChatInputBar extends StatelessWidget {
               config: const VoiceRecorderConfig(
                 sampleRate: 24000,        // Match your API's expected rate
                 numChannels: 1,
-                // encoder: AudioEncoder.pcm16bits,
+                outputMode: VoiceRecorderOutputMode.file, // Auto-generates file path in system temp
+                encoder: AudioEncoder.pcm16bits,
               ),
               onRecordingStateChanged: onRecordingStateChanged,
               onRecordingLockedChanged: onRecordingLockedChanged,

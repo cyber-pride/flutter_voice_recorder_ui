@@ -87,6 +87,28 @@ void main() {
       const cfg = VoiceRecorderConfig();
       expect(cfg.sampleRate, 16000);
       expect(cfg.numChannels, 1);
+      expect(cfg.outputMode, VoiceRecorderOutputMode.stream);
+    });
+
+    test('supports file output mode configuration', () {
+      const cfg = VoiceRecorderConfig(
+        outputMode: VoiceRecorderOutputMode.file,
+        filePath: '/tmp/test.wav',
+      );
+      expect(cfg.outputMode, VoiceRecorderOutputMode.file);
+      expect(cfg.filePath, '/tmp/test.wav');
+    });
+  });
+
+  group('VoiceRecorderResult', () {
+    test('holds path when recorded as file', () {
+      const result = VoiceRecorderResult(
+        durationMs: 1500,
+        path: '/tmp/recording.wav',
+      );
+      expect(result.durationMs, 1500);
+      expect(result.path, '/tmp/recording.wav');
+      expect(result.bytesStream, isNull);
     });
   });
 }

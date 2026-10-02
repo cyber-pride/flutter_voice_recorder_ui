@@ -4,6 +4,7 @@
 /// Outputs raw PCM bytes for streaming to voice-AI APIs.
 library flutter_voice_recorder_ui;
 
+export 'package:record/record.dart' show AudioEncoder;
 export 'src/dotted_waveform.dart' show DottedWaveform;
 export 'src/lock_rail.dart' show LockRail;
 export 'src/locked_recording_bar.dart' show LockedRecordingBar;
@@ -13,5 +14,7 @@ export 'src/voice_recorder_button.dart';
 export 'src/voice_recorder_controller.dart' show
     VoiceRecorderConfig,
     VoiceRecorderController,
-    VoiceRecorderState;
+    VoiceRecorderOutputMode,
+    VoiceRecorderState,
+    VoiceRecorderStopResult;
 export 'src/waveform_painter.dart' show WaveformPainter;
