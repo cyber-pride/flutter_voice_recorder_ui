@@ -35,7 +35,7 @@ class VoiceRecorderButton extends StatefulWidget {
     this.waveformColor,
     this.timerColor,
     this.recordingIndicatorColor,
-    this.idleMicBackgroundColor = Colors.transparent,
+    this.micBackgroundColor = Colors.transparent,
     this.micIcon = Icons.mic,
     this.idleMicIcon = Icons.mic_none,
     this.pulsingMicIcon = Icons.mic,
@@ -74,7 +74,7 @@ class VoiceRecorderButton extends StatefulWidget {
 
   /// Background color of the mic button when idle (not recording).
   /// Defaults to [Colors.transparent].
-  final Color idleMicBackgroundColor;
+  final Color micBackgroundColor;
 
   final IconData micIcon;
   final IconData idleMicIcon;
@@ -492,7 +492,7 @@ class _VoiceRecorderButtonState extends State<VoiceRecorderButton>
                         isRecording: _isRecording,
                         willCancel: _willCancel,
                         micColor: mic,
-                        micBackgroundColor: widget.idleMicBackgroundColor,
+                        micBackgroundColor: widget.micBackgroundColor,
                         enableBoxShadow: widget.enableBoxShadow,
                         micIcon: widget.micIcon,
                         idleMicIcon: widget.idleMicIcon,
