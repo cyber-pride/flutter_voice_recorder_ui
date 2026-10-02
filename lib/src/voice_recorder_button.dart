@@ -717,7 +717,7 @@ class _MicButtonState extends State<_MicButton> {
   Widget build(BuildContext context) {
     final isRec = widget.isRecording;
     final bg = isRec
-        ? (widget.willCancel ? const Color(0xFFE53935) : widget.micColor)
+        ? (widget.willCancel ? const Color(0xFFE53935) : widget.micBackgroundColor)
         : widget.micBackgroundColor;
     // Three scale states: idle (small), pressed-but-not-yet-recording
     // (slightly larger so the press feels acknowledged), recording (full).
