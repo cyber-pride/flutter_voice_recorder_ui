@@ -36,7 +36,7 @@ void main() {
           home: Scaffold(
             body: VoiceRecorderButton(
               onRecordingComplete: (_) {},
-              idleMicBackgroundColor: Colors.blue,
+              micBackgroundColor: Colors.blue,
             ),
           ),
         ),

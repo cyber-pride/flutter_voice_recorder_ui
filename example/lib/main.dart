@@ -216,7 +216,33 @@ class _ChatInputBar extends StatelessWidget {
             right: 0,
             bottom: 0,
             width: isRecording || isLocked ? null : 58,
-            child: VoiceRecorderButton(
+            child:  VoiceRecorderButton(
+              size: 56,
+              micColor: Colors.white,
+              pillColor: Colors.white,
+              waveformColor: Colors.green,
+              timerColor: Colors.black,
+              recordingIndicatorColor: Colors.red,
+              micBackgroundColor: Colors.yellow,
+              pillMicGap: 12,
+              cancelSlideThreshold: 96,
+              lockSlideThreshold: 48,
+              enableLock: true,
+              hapticFeedback: true,
+              config: const VoiceRecorderConfig(
+                sampleRate: 24000,        // Match your API's expected rate
+                numChannels: 1,
+                // encoder: AudioEncoder.pcm16bits,
+              ),
+              onRecordingStateChanged: onRecordingStateChanged,
+              onRecordingLockedChanged: onRecordingLockedChanged,
+              onRecordingComplete: onRecordingComplete,
+              onRecordingCancelled: onRecordingCancelled,
+              onPermissionDenied: onPermissionDenied,
+            )
+
+
+            /*8VoiceRecorderButton(
               size: 56,
               pillMicGap: 12,
               onRecordingStateChanged: onRecordingStateChanged,
@@ -224,7 +250,7 @@ class _ChatInputBar extends StatelessWidget {
               onRecordingComplete: onRecordingComplete,
               onRecordingCancelled: onRecordingCancelled,
               onPermissionDenied: onPermissionDenied,
-            ),
+            ),**/
           ),
         ],
       ),

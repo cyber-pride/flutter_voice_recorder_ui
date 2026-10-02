@@ -738,8 +738,8 @@ class _MicButtonState extends State<_MicButton> {
             curve: Curves.easeOutCubic,
             builder: (context, scale, _) {
               return Container(
-                width: widget.size * scale,
-                height: widget.size * scale,
+                width: (isRec) ? (widget.size * scale) : widget.size,
+                height: (isRec) ? (widget.size * scale) : widget.size,
                 decoration: BoxDecoration(
                   color: bg,
                   shape: BoxShape.circle,
