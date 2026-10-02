@@ -16,6 +16,9 @@ class LockedRecordingBar extends StatelessWidget {
     this.timerColor = const Color(0xFF111B21),
     this.waveformColor = const Color(0xFF8696A0),
     this.sendButtonColor = const Color(0xFF25D366),
+    this.deleteIconColor = const Color(0xFF8696A0),
+    this.pauseIconColor = const Color(0xFFEB4D5C),
+    this.sendIconColor = Colors.white,
     this.deleteIcon = Icons.delete_outline,
     this.pauseIcon = Icons.pause_rounded,
     this.playIcon = Icons.play_arrow_rounded,
@@ -31,13 +34,13 @@ class LockedRecordingBar extends StatelessWidget {
   final Color timerColor;
   final Color waveformColor;
   final Color sendButtonColor;
+  final Color deleteIconColor;
+  final Color pauseIconColor;
+  final Color sendIconColor;
   final IconData deleteIcon;
   final IconData pauseIcon;
   final IconData playIcon;
   final IconData sendIcon;
-
-  static const _gray = Color(0xFF8696A0);
-  static const _pauseRed = Color(0xFFEB4D5C);
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +81,7 @@ class LockedRecordingBar extends StatelessWidget {
                 size: 44,
                 child: Icon(
                   deleteIcon,
-                  color: _gray,
+                  color: deleteIconColor,
                   size: 26,
                 ),
               ),
@@ -92,7 +95,7 @@ class LockedRecordingBar extends StatelessWidget {
                       child: Icon(
                         isPaused ? playIcon : pauseIcon,
                         key: ValueKey(isPaused),
-                        color: _pauseRed,
+                        color: pauseIconColor,
                         size: 36,
                       ),
                     ),
@@ -119,7 +122,7 @@ class LockedRecordingBar extends StatelessWidget {
                   ),
                   child: Icon(
                     sendIcon,
-                    color: Colors.white,
+                    color: sendIconColor,
                     size: 22,
                   ),
                 ),

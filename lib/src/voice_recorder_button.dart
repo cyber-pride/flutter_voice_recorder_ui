@@ -35,6 +35,9 @@ class VoiceRecorderButton extends StatefulWidget {
     this.waveformColor,
     this.timerColor,
     this.recordingIndicatorColor,
+    this.deleteIconColor,
+    this.pauseIconColor,
+    this.sendIconColor,
     this.micBackgroundColor = Colors.transparent,
     this.micIcon = Icons.mic,
     this.idleMicIcon = Icons.mic_none,
@@ -71,6 +74,10 @@ class VoiceRecorderButton extends StatefulWidget {
   /// Color of the small pulsing mic icon shown inside the recording pill
   /// (the "you're recording" indicator). Defaults to a universal red.
   final Color? recordingIndicatorColor;
+
+  final Color? deleteIconColor;
+  final Color? pauseIconColor;
+  final Color? sendIconColor;
 
   /// Background color of the mic button when idle (not recording).
   /// Defaults to [Colors.transparent].
@@ -414,7 +421,10 @@ class _VoiceRecorderButtonState extends State<VoiceRecorderButton>
           isPaused: _controller.isPaused,
           timerColor: timerColor,
           waveformColor: wave,
-          sendButtonColor: mic,
+          sendButtonColor: widget.micBackgroundColor,
+          deleteIconColor: widget.deleteIconColor ?? const Color(0xFF8696A0),
+          pauseIconColor: widget.pauseIconColor ?? const Color(0xFFEB4D5C),
+          sendIconColor: widget.sendIconColor ?? Colors.white,
           deleteIcon: widget.deleteIcon,
           pauseIcon: widget.pauseIcon,
           playIcon: widget.playIcon,
